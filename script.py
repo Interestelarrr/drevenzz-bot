@@ -1,9 +1,9 @@
 import config
 import amino
 import random
+import threading
 import urllib.request
 import urllib.parse
-import threading
 import json
 import requests
 import re
@@ -11,35 +11,62 @@ import time
 import os
 import subprocess
 from gtts import gTTS
+from io import BytesIO
 from flask import Flask
 from amino import socket
-from io import BytesIO
 from threading import Thread
 from getpass import getpass
 from pprint import pprint
 client = amino.Client()
 
-#Vol. Login & Credits
 
-print("on by keldrysh")
+app=Flask("")
 
-client.login(email='drevenzzbot@gmail.com',password='andromedala')
+@app.route("/")
+def index():
+    return "<h1>Bot is running</h1>"
+
+Thread(target=app.run,args=("0.0.0.0",8080)).start()
+
+
+print("""
+     ("`-/")_.-'"``-._
+      . . `; -._    )-;-,_`)
+     (v_,)'  _  )`-.\  ``-'
+    _.- _..-_/ / ((.'
+  ((,.-'   ((,/   
+""")
+
+
+def mensajeLogin():
+   client.login("drevenzzea@gmail.com","andromedala")
+   socketloop = threading.Thread(target = reconsocketloop)
+   socketloop.daemon = True
+   socketloop.start()
+   
+
+#Puedes cambiar el getpass por input, pero getpass es mas seguro! 
+
 
 os.system ("clear")
 
+
 print("""
-      ¡Bienvenido a Drevenzz! 
-      Este bot esta creado
-      por keldrysh/drevenzz
-      """
-)
+      ,/|         _.--''^``-...___.._.,;
+     /, \'.     _!'          ,--,,,--'''
+    { \    `_!''       '    /})
+     `;;'            ;   ; ;
+ ._.--''     ._,,, _..'  .;.'
+  (,_....----'''     (,..--''
+       
+""")
+
+
 
 #Vol. Help
 
-HELP = """ 
-[CUS]🏁  ゛ㅤ  𔒌̤ㅤ㍖꯭㍈꯭㌲  ⏎ 
+HELP = """    🏁  ゛ㅤ  𔒌̤ㅤ㍖꯭㍈꯭㌲  ⏎ 
 
-!everyone =  llama a todos.
 !abrazar = Abraza a una persona mencionandola.
 !besar = Besa a una persona mencionandola.
 !selfie = Tomate una selfie.
@@ -85,85 +112,32 @@ leave = """[BC]Lamentamos que te vayas.
 
 name_pr = lambda l: ' '.join(l)
 
-#Vol. Configs Welcome/Bienvenida.
+# Globally
+def esMala(frase):
+   malasPalabras=["puta","puto","mierda","zorra","zorrita","pelotuda de mierda","pelotudo de mierda","sorete","forro","chupame el pito","chupame la pija","chupame la concha","pija","poronga","pene","trolo","trola","trolo de mierda","trola de mierda","orto","hija de puta","hijo de puta","gilipollas","polla","cogeme","garchar","garchame","tula","sexo","cagada","maricon", "culeado", "culiado", "culiada", "qla", "la concha de tu hermana", "la concha", "la concha de tu tía", "orgia", "sexo anal", "hijo de re mil puta", "deficiente", "cretina", "lela", "ramera", "fulana", "calientaguevos", "ridícula", "petarda", "pasmarote", "fistro", "desidiosa", "reputa", "soputa", "recontraputa", "hija de puta", "hija de un millón de putas", "escupepitos", "caradepedo", "alientoamojón","revuelcaleche", "coñoesumadre y de su abuela", "conchuda", "culoroto", "nalgas reventadas", "tragasable", "ojete desilachado", "capulla", "zoquete", "masturbadora", "chupa!tampones", "turra", "ojete", "atorrante", "mamaguevos", "cara de concha", "mugrosa", "maldita", "inmunda", "apestosa", "cabrona", "maricona", "huevona", "tarada", "culeada", "gilipollas", "pelotuda", "malnacida", "retardada", "atrasada", "inútil", "móngola", "estúpida", "chupapollas", "cochambrosa", "puta", "panocha", "panochon"]
+   for palabra in malasPalabras:
+    if palabra.lower() in frase.lower():
+      return True
+   return False
 
+def reconsocketloop():
+    shandle = client.socket
+    while (1):
+        shandle.close()
+        shandle.start()
+        time.sleep(120)
 
-#Bienvenida
+def esBuenaFrase(frase):
+   esBuenaFrase = True
 
+   listaDePalabras = frase.split() # separa por espacios en palabras
+   for unaPalabra in listaDePalabras:
+     if esMala(unaPalabra):
+       esBuenaFrase = False
+       break
 
-@client.callbacks.event('on_group_member_join')
-def on_group_member_join(data):
-        nick = data.message.author.nickname
-        msg = {
-        'message': f"""{join}\n\n[C]{nick} eres finalmente bienvenido/a!
-       
-[CUS]㍖꯭꯭꯭㍏꯭꯭꯭㌺ㅤ ㅤ⎘ㅤ ㅤ♘ㅤ ㅤ𝅗𝅥ㅤ ㅤ˟⊿
-          """,
-        'chatId': data.message.chatId,
-        'mentionUserIds': [data.message.author.userId]
-        }
-        send_message(data.comId, msg)
+   return esBuenaFrase
 
-
-#despedida
-
-@client.callbacks.event('on_group_member_leave')
-def on_group_member_leave(data):
-        msg = {
-        'message': f"{leave}",
-        'chatId': data.message.chatId,
-        'mentionUserIds': [data.message.author.userId]
-        }
-        send_message(data.comId, msg)
-
-def send_message(cid, msg):
-   acced = amino.SubClient(comId=cid, profile=client.profile)
-   try:
-       acced.send_message(**msg)
-   except Exception:
-       print("Error: 404")
-
-#Vol. Setting help
-
-@client.callbacks.event("on_text_message")
-def on_text_message(data):
-
-    #parametros
-    command = data.message.content.split(' ')
-    print(command)
-    pr_t = command[1:]
-    command = command[0] 
-
-    #help:
-    if command == "!help":
-       acced = amino.SubClient(comId=data.comId, profile=client.profile)
-       acced.send_message(chatId=data.message.chatId, message = HELP) 
-
-# Comandos-Everyone
-
-users = []
-@client.callbacks.event("on_text_message")
-def on_text_message(data):
-   subclient = amino.SubClient(data.comId, profile=client.profile)
-   
-   chatId = data.message.chatId
-   print(f"{data.message.author.nickname}: {data.message.content}")
-
-   if data.message.content == "!everyone":
-     I = 0
-     while I < 1:
-       users = []
-       people = subclient.get_chat_users(chatId,start=0,size=871).userId
-       for usersin in people: 
-         users.append(usersin)
-         print(users)
-       subclient.send_message(chatId, message="<$@Esto es Importante$>!", mentionUserIds=users)
-       print("send")
-       del users
-       I += 1
-
-            
-#Defs.
 
 def send_message(cid, msg):
     acced = amino.SubClient(comId=cid, profile=client.profile)
@@ -237,8 +211,129 @@ def youtube(cid,chatId,msg):
         send_message(cid,message)
     except Exception:
         print("Error: 404")
+
+
+#bienvenida
+
+
+@client.callbacks.event('on_group_member_join')
+def on_group_member_join(data):
+        nick = data.message.author.nickname
+        msg = {
+        'message': f"""{join}\n\n[C]{nick} eres finalmente bienvenido/a!
+       
+[CUS]㍖꯭꯭꯭㍏꯭꯭꯭㌺ㅤ ㅤ⎘ㅤ ㅤ♘ㅤ ㅤ𝅗𝅥ㅤ ㅤ˟⊿
+          """,
+        'chatId': data.message.chatId,
+        'mentionUserIds': [data.message.author.userId]
+        }
+        send_message(data.comId, msg)
+
+#mensaje
+
+@client.callbacks.event("on_text_message")
+def on_text_message(data):
+
+    #nyet
+
+    msg = data.message.content
+    nick = data.message.author.nickname
+    message = {
+        'chatId': data.message.chatId
+    }
+    #parametros
+  
+    command = msg.split(' ')
+    print(f'{nick}: {msg}')
+    pr_t = command[1:]
+    command = command[0] 
+    
+    #help:
+    if command == "!help":
+        name = name_pr(pr_t)
+        if name == "!id":
+            message.update({
+                'message': """id:
+  Esto es para tener el ID de dicho chat.
+  Uso: !id"""
+            })
             
-#
+        elif name == "!kiss":
+            message.update({
+                'message': """kiss:
+  Es un comando para besar apasionadamente aun usuario. :3 
+  Uso: !kiss user"""
+            })
+
+        elif name == "!kill":
+            message.update({
+                'message': """kill:
+  ¡Este comando le da K'O a su oponente enseguida! D': 
+  Uso: !kill user"""
+            })
+
+        elif name == "!hug":
+            message.update({
+                'message': """hug:
+  Este comando le dara un gran abrazo. >w< 
+  Uso: !hug user"""
+            })
+
+        elif name == "!help":
+            message.update({
+                'message': """help:
+  ¿Qué? ¿Estas viendo para que sirve el help mientras usas el help? OMG. """
+            })
+
+        elif name == "!comment":
+            message.update({
+                'message': """comment:
+  Te dare el comentario que quieras, ¡Pero ten cuidado! Un gran poder lleva una gran responsabilidad 
+  Uso: !comment cualquier mensaje"""
+            }) 
+
+        elif name == "~kiss":
+            message.update({
+                'message': """kiss:
+  Beso fantasma >w<
+  Uso: ~kiss user"""
+            })
+
+        elif name == "~ban":
+            message.update({
+                'message': """ban:
+  ban fantasma :3
+  Uso: ~ban user"""
+
+            })
+
+        elif name == "!join":
+            message.update({
+                'message': """join:
+  Este comando es para unirme a tu chat >w<
+  Uso: !join linkdelchat """
+            })
+
+        elif name == "~hit":
+            message.update({
+                'message': """puñetazo:
+  ¡Te dara una golpiza! >:3
+  Uso: ~puñetazo user """
+            })
+        elif name == "!speak":
+            message.update({
+                'message': """speak:
+  Quieres qué diga lo que me dices? >.<
+  Uso: !speak cualquier mensaje """
+            })
+        elif name == "!id":
+            message.update({
+                'message': """id:
+  ¿Quieres sacar un id? uwu
+  Uso: !id? http://amino.com/EXAMPLE. """
+            })
+        else:
+            message.update({'message': HELP}, messageType=100)
 
     #comandos exclusivo
 
@@ -471,4 +566,4 @@ def youtube(cid,chatId,msg):
     if command[0] in '!~':
         send_message(data.comId, message)
 
-     
+mensajeLogin()
