@@ -39,7 +39,7 @@ print("""
 
 
 def mensajeLogin():
-   client.login("drevenzzea@gmail.com","andromedala")
+   client.login("your_email", "your_password")
    socketloop = threading.Thread(target = reconsocketloop)
    socketloop.daemon = True
    socketloop.start()
@@ -48,7 +48,7 @@ def mensajeLogin():
 #Puedes cambiar el getpass por input, pero getpass es mas seguro! 
 
 
-os.system ("clear")
+os.system("clear")
 
 
 print("""
@@ -82,25 +82,7 @@ HELP = """    🏁  ゛ㅤ  𔒌̤ㅤ㍖꯭㍈꯭㌲  ⏎
 """
 #Vol. Bienvenida/Welcome
 
-join = """ [CUS]𖦆̸ㅤ  𝒲ㅤ〕𝖾𝗅𝖼𝗈𝗆𝖾ㅤㅤ㋖ㅤㅤ⅚̤ㅤ  ⏎ 
-
-[C]Drevenzz bot, te da la Bienvenida
-[C]a este chat y te deseamos junto a
-[C]tod@s una buena estadía en el chat
-[C]y esperamos que te diviertas aquí.
-
-[CuS]/ㅤ/ㅤㅤㅤ◜♡◝ㅤ  〔 ❆ 〕  ㅤ \ㅤ\
-
-
-[C]No olvides que ante cualquier duda
-[C]o reporte, no dudes hablar con el
-[C]staff del chat y ante la duda de
-[C]algún comando no olvides escribir
-[C]!help en el chat para tener ayuda.
-
-[CUS]🏁  ゛ㅤ  𔒌̤ㅤ㍖꯭㍈꯭㌲  ⏎ 
-
-"""
+join = """ Bienvenid@ """
 
 leave = """[BC]Lamentamos que te vayas.
 
